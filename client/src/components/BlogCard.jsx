@@ -27,8 +27,8 @@ function BlogCard({ blog }) {
         <h3 className='mb-2 text-base sm:text-lg font-medium text-gray-900 line-clamp-2'>
           {title}
         </h3>
-        <p className='text-xs sm:text-sm text-gray-600 line-clamp-3' dangerouslySetInnerHTML={{"__html": description.slice(0, 120)}}>
-        
+        <p className='text-xs sm:text-sm text-gray-600 line-clamp-3'>
+          {description.replace(/<[^>]*>/g, '').slice(0, 120)}...
         </p>
       </div>
     </div>

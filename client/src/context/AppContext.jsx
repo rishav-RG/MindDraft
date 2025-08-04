@@ -4,8 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import toast from "react-hot-toast";
 
 // 🌐 Axios ka default base URL set kar rahe hain (env se)
-console.log("BASE_URL:", import.meta.env.VITE_BASE_URL);
-axios.defaults.baseURL = import.meta.env.VITE_BASE_URL;
+axios.defaults.baseURL = import.meta.env.VITE_BASE_URL || 'http://localhost:3000';
 
 // ✅ Context create kar rahe hain
 const AppContext = createContext();
@@ -34,8 +33,9 @@ export const AppProvider = ({ children }) => {
       data.success ? setBlogs(data.blogs) : toast.error(data.message);
 
     } catch (error) {
-      // ❌ Error aaye to toast me dikhao
-      toast.error(error.message);
+      // Fixed error handling for axios
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to fetch blogs';
+      toast.error(errorMessage);
     }
   };
 

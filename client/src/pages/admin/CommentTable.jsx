@@ -5,50 +5,52 @@ import toast from 'react-hot-toast';
 function CommentTable({ comment, fetchComments }) {
   const { blog, createdAt, _id } = comment;
   const BlogDate = new Date(createdAt);
-  const {axios} = useAppContext();
+  const { axios } = useAppContext();
 
- const approveComment = async () => {
-  try {
-    // ✅ Admin approval ke liye POST request bhej rahe hain backend ko
-    const { data } = await axios.post('/api/admin/approve-comment', { 
-      id: _id // 🆔 Ye comment ka unique ID hai jisko approve karna hai 
-    });
+  const approveComment = async () => {
+    try {
+      // ✅ Admin approval ke liye POST request bhej rahe hain backend ko
+      const { data } = await axios.post('/api/admin/approve-comment', {
+        id: _id // 🆔 Ye comment ka unique ID hai jisko approve karna hai 
+      });
 
-    if (data.success) {
-      toast.success(data.message); // 🎉 Agar approval successful ho gaya toh success message dikhaye
-      fetchComments(); // 🔄 Comments list dubara fetch karo taaki UI update ho
-    } else {
-      toast.error(data.message); // ❌ Backend se koi issue aaya toh error message dikhao
+      if (data.success) {
+        toast.success(data.message); // 🎉 Agar approval successful ho gaya toh success message dikhaye
+        fetchComments(); // 🔄 Comments list dubara fetch karo taaki UI update ho
+      } else {
+        toast.error(data.message); // ❌ Backend se koi issue aaya toh error message dikhao
+      }
+
+    } catch (error) {
+      // Fixed error handling for axios
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to approve comment';
+      toast.error(errorMessage);
     }
+  };
 
-  } catch (error) {
-    // ⚠️ Network ya server error ke case me yeh catch block chalega
-    toast.error(error.message); // 🔔 Error message user ko show karo
-  }
-};
+  const deleteComment = async () => {
+    try {
+      // ⚠️ User se confirmation le rahe hain — kya sach me delete karna chahte ho?
+      const confirm = window.confirm('Are you sure you want to delete this comment?');
 
-const deleteComment = async () => {
-  try {
-    // ⚠️ User se confirmation le rahe hain — kya sach me delete karna chahte ho?
-    const confirm = window.confirm('Are you sure you want to delete this comment?');
+      if (!confirm) return; // ❎ Agar user ne cancel kiya, toh function yahin ruk jaayega
 
-    if (!confirm) return; // ❎ Agar user ne cancel kiya, toh function yahin ruk jaayega
+      // 🚀 Delete request backend ko bhej rahe hain comment ID ke saath
+      const { data } = await axios.post('/api/admin/delete-comment', { id: _id });
 
-    // 🚀 Delete request backend ko bhej rahe hain comment ID ke saath
-    const { data } = await axios.post('/api/admin/delete-comment', { id: _id });
+      if (data.success) {
+        toast.success(data.message); // ✅ Agar delete successful hua, success message dikhao
+        fetchComments(); // 🔄 UI update ke liye comments list dobara fetch karo
+      } else {
+        toast.error(data.message); // ❌ Backend ne failure message bheja toh error dikhao
+      }
 
-    if (data.success) {
-      toast.success(data.message); // ✅ Agar delete successful hua, success message dikhao
-      fetchComments(); // 🔄 UI update ke liye comments list dobara fetch karo
-    } else {
-      toast.error(data.message); // ❌ Backend ne failure message bheja toh error dikhao
+    } catch (error) {
+      // Fixed error handling for axios
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to delete comment';
+      toast.error(errorMessage);
     }
-
-  } catch (error) {
-    // 🔥 Network/server error aaya toh catch block chalega
-    toast.error(error.message); // 🚨 Error message user ko show karo
-  }
-};
+  };
 
 
 
@@ -57,7 +59,7 @@ const deleteComment = async () => {
       <td className="px-6 py-4 text-sm text-gray-700 leading-6">
         <div className="space-y-1">
           <div>
-            <b className="text-gray-600">Blog:</b> {blog.title}
+            <b className="text-gray-600">Blog:</b> {blog?.title || 'Blog not found'}
           </div>
           <div>
             <b className="text-gray-600">Name:</b> {comment.name}
@@ -76,7 +78,7 @@ const deleteComment = async () => {
         <div className="flex items-center gap-3">
           {!comment.isApproved ? (
             <img
-            onClick={approveComment}
+              onClick={approveComment}
               src={assets.tick_icon}
               alt="Approve"
               title="Approve"
@@ -89,7 +91,7 @@ const deleteComment = async () => {
           )}
 
           <img
-          onClick={deleteComment}
+            onClick={deleteComment}
             src={assets.bin_icon}
             alt="Delete"
             title="Delete"

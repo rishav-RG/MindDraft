@@ -31,9 +31,10 @@ blogRouter.get("/:blogId", getBlogById);
 blogRouter.post("/delete", auth, deleteBlogById);
 blogRouter.post("/toggle-publish", auth, togglePublish);
 
-// Comments - Update these routes
-blogRouter.post("/comments", addComment);               // ✅ New
-blogRouter.get("/:blogId/comments", getBlogComment);    // Keep this as is
+// Comments routes
+blogRouter.post("/add-comment", addComment); // ✅ Fixed route for adding comments
+blogRouter.post("/comments", getBlogComment); // ✅ Fixed route for fetching comments
+blogRouter.get("/:blogId/comments", getBlogComment); // Keep this as alternative
 
 //gemini
 blogRouter.post("/generate", auth, generateContent);

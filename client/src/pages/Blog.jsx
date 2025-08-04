@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import { assets, blog_data, comments_data } from '../assets/assets';
+import { assets } from '../assets/assets';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Moment from 'moment';
@@ -15,61 +15,61 @@ function Blog() {
   const [comments, setComments] = useState([]);
   const [name, setName] = useState('');
   const [content, setContent] = useState('');
-  const {axios} = useAppContext();
+  const { axios } = useAppContext();
 
-// inside your component
-const fetchBlog = useCallback(async () => {
-  try {
-    const { data } = await axios.get(`/api/blog/${id}`);
-    data.success ? setData(data.blog) : toast.error(data.message);
-  } catch (error) {
-    toast.error(error.message);
-  }
-}, [id]);
-
-
-  const fetchComments = async () => {
-  try {
-    const { data } = await axios.post('/api/blog/comments', { blogId: id });
-
-    if (data.success) {
-      setComments(data.comments);
-    } else {
-      toast.error(data.message);
+  const fetchBlog = useCallback(async () => {
+    try {
+      const { data } = await axios.get(`/api/blog/${id}`);
+      data.success ? setData(data.blog) : toast.error(data.message);
+    } catch (error) {
+      // Fixed error handling for axios
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to fetch blog';
+      toast.error(errorMessage);
     }
+  }, [id, axios]);
 
-  } catch (error) {
-    toast.error(error.message);
-  }
-};
 
-const addComment = async (e) => {
-  e.preventDefault();
-  console.log("name:", name); // 🧪
-  console.log("content:", content); // 🧪
+  const fetchComments = useCallback(async () => {
+    try {
+      const { data } = await axios.post('/api/blog/comments', { blogId: id });
 
-  try {
-    const response = await axios.post('/api/blog/add-comment', {
-      blog: id,
-      name,
-      content,
-    });
+      if (data.success) {
+        setComments(data.comments);
+      } else {
+        toast.error(data.message);
+      }
 
-    if (response.data.success) {
-      toast.success(response.data.message);
-      setName('');
-      setContent('');
-      fetchComments();
-    } else {
-      toast.error(response.data.message);
+    } catch (error) {
+      // Fixed error handling for axios
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to fetch comments';
+      toast.error(errorMessage);
     }
-  } catch (error) {
-    console.log(error); // 🧪
-    toast.error(error.message);
-  }
-};
+  }, [id, axios]);
 
+  const addComment = async (e) => {
+    e.preventDefault();
 
+    try {
+      const response = await axios.post('/api/blog/add-comment', {
+        blog: id,
+        name,
+        content,
+      });
+
+      if (response.data.success) {
+        toast.success(response.data.message);
+        setName('');
+        setContent('');
+        fetchComments();
+      } else {
+        toast.error(response.data.message);
+      }
+    } catch (error) {
+      // Fixed error handling for axios
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to add comment';
+      toast.error(errorMessage);
+    }
+  };
 
 
   useEffect(() => {
@@ -177,7 +177,7 @@ const addComment = async (e) => {
       <Footer />
     </div>
   ) : (
-   <Loader/>
+    <Loader />
   );
 }
 

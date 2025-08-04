@@ -119,8 +119,8 @@ export const addComment = async (req, res) => {
 
 export const getBlogComment = async (req, res) => {
   try {
-    // Get blogId from params instead of body for GET requests
-    const { blogId } = req.params;
+    // Get blogId from body for POST requests or params for GET requests
+    const blogId = req.body.blogId || req.params.blogId;
 
     // Validate blogId
     if (!blogId) {
