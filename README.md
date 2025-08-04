@@ -1,4 +1,4 @@
-# QuickBlog - AI-Powered Blogging Platform
+# MindDraft - AI-Powered Blogging Platform
 
 A modern, full-stack blogging platform with AI content generation capabilities.
 
